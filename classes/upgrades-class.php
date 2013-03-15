@@ -98,7 +98,12 @@ class ScaleUp_Upgrades_Addon extends ScaleUp_Addon {
         $context = $this->get( 'context' );
         $upgrade = $context->get_feature( 'upgrade', $name );
         if ( is_object( $upgrade ) ) {
-          $return = $upgrade->apply_filters( 'execute', (object) array( 'success' => true, 'data' => array(), 'args' => $args ) );
+          $return = $upgrade->apply_filters( 'execute', (object) array(
+            'success' => true,
+            'data'    => array(),
+            'args'    => $args,
+            'alerts'  => array(),
+          ) );
         }
         if ( is_object( $return ) && true === $return->success ) {
           $executed_upgrades[] = $name;
@@ -108,10 +113,7 @@ class ScaleUp_Upgrades_Addon extends ScaleUp_Addon {
 
     }
 
-    header('Content-Type: application/json');
-    echo json_encode( $return );
-
-    return true;
+    return $return;
   }
 
 }

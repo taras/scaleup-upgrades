@@ -14,6 +14,11 @@ class ScaleUp_Upgrade extends ScaleUp_Feature {
       $return = false;
     }
 
+    if ( is_object( $return ) ) {
+      header('Content-Type: application/json');
+      echo json_encode( $return );
+    }
+
     return $return;
   }
 
