@@ -18,6 +18,6 @@ function scaleup_upgrades_scaleup_app_init() {
   /**
    * Upgrades Addon available to ScaleUp App
    */
-  include( SCALEUP_UPGRADES_DIR . '/classes/upgrades-class.php' );
+  include( SCALEUP_UPGRADES_DIR . '/classes/addon-class.php' );
 }
 add_action( 'scaleup_app_init', 'scaleup_upgrades_scaleup_app_init' );

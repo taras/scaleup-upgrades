@@ -1,122 +1,50 @@
 <?php
-class ScaleUp_Upgrades_Addon extends ScaleUp_Addon {
+class ScaleUp_Upgrades extends ScaleUp_Base {
 
-  function activation() {
-    $context      = $this->get( 'context' );
-    $context_name = $context->get( 'name' );
-    $this->set( 'option_key', "{$context_name}_upgrades" );
+  function __construct( $args = array() ) {
+    parent::__construct( $args );
 
-    $this->add( 'view', array(
-      'name'  => 'upgrades',
-    ));
-
-    $this->add( 'view', array(
-      'name'  => 'upgrade',
-      'url'   => '/upgrade/{name}',
-    ));
-
-    $this->add( 'template', array(
-      'path'     => SCALEUP_UPGRADES_DIR . '/templates',
-      'template' => '/upgrades/upgrades.php',
-    ));
-
-    $this->add( 'form', array(
-      'name'  => 'upgrades',
-    ));
-
+    $context = $this->get( 'context' );
+    $context->add_action( 'activation', array( $this, '_activation' ) );
   }
 
-  function get_defaults() {
-    return wp_parse_args(
-      array(
-        'name'  => 'upgrades',
-        'url'   => '/upgrades',
-      ), parent::get_defaults() );
-  }
+  /**
+   * On context activation add each method in this class as an upgrade to the context item
+   */
+  function _activation() {
 
-  function setup_form( $args ) {
-
-    /** @var $context ScaleUp_Feature */
-    $context  = $this->get( 'context' );
-    $upgrades = $context->get_features( 'upgrades' );
-    $form     = $this->get_feature( 'form', 'upgrades' );
-
-    $executed_upgrades = $this->get_executed_upgrades();
-
-    if ( is_array( $upgrades ) && !empty( $upgrades ) ) {
-      $form->add( 'form_field', array(
-        'name'    => 'button',
-        'type'    => 'button',
-        'text'    => 'execute',
-      ) );
-      /** @var $upgrade ScaleUp_Upgrade */
-      foreach ( $upgrades as $name => $upgrade ) {
-        $form->add( 'form_field', array(
-          'name'     => $name,
-          'type'     => 'checkbox',
-          'label'    => $name,
-          'disabled' => in_array( $name, $executed_upgrades ),
-          'help'     => $upgrade->get( 'description' ),
+    $context = $this->get( 'context' );
+    if ( !is_null( $context ) ) {
+      $methods = $this->getDeclaredMethods( __CLASS__ );
+      foreach ( $methods as $method ) {
+        $context->add( 'upgrade', array(
+          'name'    => $method,
+          'execute' => array( $this, $method ),
         ) );
       }
-    } else {
-      $form->add( 'alert', array(
-        'type'  => 'info',
-        'msg'   => "You don't have any upgrades yet."
-      ));
     }
 
-    return $args;
   }
 
-  function get_executed_upgrades() {
-    $option_key        = $this->get( 'option_key' );
-    $executed_upgrades = get_option( $option_key );
-    if ( false === $executed_upgrades ) {
-      $executed_upgrades = array();
-    }
-    return $executed_upgrades;
-  }
+  /**
+   * Return array of methods for the declared class
+   *
+   * @see http://stackoverflow.com/questions/3712671/get-only-declared-methods-of-a-class-in-php
+   * @param $className
+   * @return array
+   */
+  function getDeclaredMethods( $className ) {
 
-  function get_upgrades( $args ) {
-    $this->setup_form( $args );
-    get_template_part( '/upgrades/upgrades.php' );
-    return true;
-  }
-
-  function post_upgrade( $args ) {
-
-    $return = ( object ) array( 'success' => false, 'data' => array() );
-
-    if ( isset( $args[ 'name' ] ) && !empty( $args[ 'name' ] ) ) {
-
-      $name = $args[ 'name' ];
-
-      $executed_upgrades = $this->get_executed_upgrades();
-
-      if ( !in_array( $name, $executed_upgrades ) ) {
-        $context = $this->get( 'context' );
-        $upgrade = $context->get_feature( 'upgrade', $name );
-        if ( is_object( $upgrade ) ) {
-          $return = $upgrade->apply_filters( 'execute', (object) array(
-            'success' => true,
-            'data'    => array(),
-            'args'    => $args,
-            'alerts'  => array(),
-          ) );
-        }
-        if ( is_object( $return ) && true === $return->success ) {
-          $executed_upgrades[] = $name;
-          $saved = update_option( $this->get( 'option_key' ), $executed_upgrades );
-        }
+    $reflector      = new ReflectionClass( $className );
+    $methodNames    = array();
+    $lowerClassName = strtolower( $className );
+    foreach ( $reflector->getMethods( ReflectionMethod::IS_PUBLIC ) as $method ) {
+      if ( strtolower( $method->class ) == $lowerClassName ) {
+        $methodNames[ ] = $method->name;
       }
-
     }
 
-    return $return;
+    return $methodNames;
   }
 
 }
-
-ScaleUp::register( 'addon', array( 'name' => 'upgrades', '__CLASS__' => 'ScaleUp_Upgrades_Addon' ) );
-

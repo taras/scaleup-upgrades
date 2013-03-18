@@ -35,6 +35,7 @@ class ScaleUp_Upgrade extends ScaleUp_Feature {
 ScaleUp::register_feature_type( 'upgrade', array(
   '__CLASS__'     => 'ScaleUp_Upgrade',
   '_plural'       => 'upgrades',
+  '_container'    => 'ScaleUp_Upgrades',
   '_duck_types'   => array( 'contextual' ),
 ));
 

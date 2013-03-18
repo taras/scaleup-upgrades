@@ -2,11 +2,16 @@
 
   <div id="wrapper">
     <div class="container">
-      <div class="row">
+      <div class="row span4">
 
         <h2>Upgrades</h2>
 
         <?php the_form( 'upgrades' ); ?>
+
+      </div>
+      <div class="row span4">
+
+        <h2>Alerts</h2>
 
       </div>
     </div>
