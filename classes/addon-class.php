@@ -39,7 +39,7 @@ class ScaleUp_Upgrades_Addon extends ScaleUp_Addon {
     /** @var $context ScaleUp_Feature */
     $context  = $this->get( 'context' );
     $upgrades = $context->get_features( 'upgrades' );
-    $form     = $this->get_feature( 'form', 'upgrades' );
+    $form     = get_form( 'upgrades' );
 
     $executed_upgrades = $this->get_executed_upgrades();
 

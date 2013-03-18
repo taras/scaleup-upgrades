@@ -4,7 +4,7 @@ class ScaleUp_Upgrades extends ScaleUp_Base {
   function __construct( $args = array() ) {
     parent::__construct( $args );
 
-    $context = $this->get( 'context' );
+    $context = $this->get( '_context' );
     $context->add_action( 'activation', array( $this, '_activation' ) );
   }
 
@@ -13,13 +13,14 @@ class ScaleUp_Upgrades extends ScaleUp_Base {
    */
   function _activation() {
 
-    $context = $this->get( 'context' );
+    $context = $this->get( '_context' );
     if ( !is_null( $context ) ) {
-      $methods = $this->getDeclaredMethods( __CLASS__ );
+      $methods = $this->get_upgrades( get_class( $this ) );
       foreach ( $methods as $method ) {
         $context->add( 'upgrade', array(
-          'name'    => $method,
-          'execute' => array( $this, $method ),
+          'name'        => $method[ 'name' ],
+          'description' => $method[ 'description' ],
+          'execute'     => array( $this, $method[ 'name' ] ),
         ) );
       }
     }
@@ -29,22 +30,24 @@ class ScaleUp_Upgrades extends ScaleUp_Base {
   /**
    * Return array of methods for the declared class
    *
-   * @see http://stackoverflow.com/questions/3712671/get-only-declared-methods-of-a-class-in-php
-   * @param $className
+   * @param string $class
    * @return array
    */
-  function getDeclaredMethods( $className ) {
+  function get_upgrades( $class ) {
 
-    $reflector      = new ReflectionClass( $className );
-    $methodNames    = array();
-    $lowerClassName = strtolower( $className );
+    $reflector    = new ReflectionClass( $class );
+    $upgrades     = array();
+    $lower_class  = strtolower( $class );
     foreach ( $reflector->getMethods( ReflectionMethod::IS_PUBLIC ) as $method ) {
-      if ( strtolower( $method->class ) == $lowerClassName ) {
-        $methodNames[ ] = $method->name;
+      if ( strtolower( $method->class ) == $lower_class ) {
+        $upgrade = array();
+        $upgrade[ 'name' ] = $method->name;
+        $upgrade[ 'description' ] = $method->getDocComment();
+        $upgrades[] = $upgrade;
       }
     }
 
-    return $methodNames;
+    return $upgrades;
   }
 
 }
