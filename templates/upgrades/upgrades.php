@@ -13,7 +13,7 @@
 
         <h2>Alerts</h2>
         <div id="alerts">
-          
+
         </div>
       </div>
     </div>
@@ -21,6 +21,14 @@
 
   <script type="text/javascript">
     jQuery(document).ready( function($){
+
+      function scaleup_upgrades_alerts( data ) {
+        data.alerts.forEach(function(alert) {
+          window.console && console.log( alert.msg );
+        });
+
+      }
+
       $('#field_button').click(function(e){
         $( "input[type=checkbox]:checked" ).each(function(){
           var name = $(this).attr('name')
@@ -28,9 +36,7 @@
             url: 'upgrades/upgrade/'+name,
             dataType: 'json',
             type: 'POST'
-          }).done(function ( data ) {
-              $("input[name="+data.args.name+"]").prop('checked', true);
-            });
+          }).done(scaleup_upgrades_alerts);
         });
         e.preventDefault();
       });
