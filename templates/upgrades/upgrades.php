@@ -24,7 +24,7 @@
 
       function scaleup_upgrades_alerts( data ) {
         data.alerts.forEach(function(alert) {
-          window.console && console.log( alert.msg );
+          $("#alerts").prepend( '<div class="alert '+alert.type+'">' + alert.msg + '</div>');
         });
 
       }
